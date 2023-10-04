@@ -7,7 +7,7 @@
 using namespace std;
 
 /*
-*Request Obj:
+*Request object:
 *   IP in
 *   IP out
 *   Process time
