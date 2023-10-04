@@ -1,10 +1,21 @@
-//loadbalancer.h
+/*ALEXANDER GONZALES
+* LOADBALANCER_H_FILE
+* Author    : Alexander Gonzales
+---------------------------------------------------*/
+/****************************************************/
+/*               LOADBALANCER GUARDS                */
+/****************************************************/
 #ifndef REQUEST_CPP
 #define LOADBALANCER_H
+
+/****************************************************/
+/*                   DEPENDANCIES                   */
+/****************************************************/
 
 #include <queue>
 #include "request.cpp"
 #endif
+
 
 class loadbalancer
 {
