@@ -2,7 +2,7 @@
 
 #define REQUEST.CPP
 
-
+using namespace std;
 
 struct request
 {
