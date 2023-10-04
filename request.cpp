@@ -8,10 +8,10 @@
 // request constructor
 request::request()
 {
-    IP_in = "";
-    IP_out = "";
+    IP_in = generate_IP();
+    IP_out = generate_IP();
 
-    process_time = 0;
+    process_time = generate_time();
 }
 
 // creates random IP addresses in the IPv4 format
@@ -45,4 +45,17 @@ string request::generate_IP()
     }
 
     return address;
+}
+
+// generate random time
+int request::generate_time()
+{
+    // random seed
+    int rand_seed = (rand() % 1000);
+    srand(rand_seed);
+
+    int time_limit = 3;
+    int t = rand() % time_limit; // time it takes to complete request
+
+    return t;
 }

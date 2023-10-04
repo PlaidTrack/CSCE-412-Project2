@@ -2,6 +2,7 @@
 #define REQUEST_H
 
 #include <string>   // for IP obj
+#include <ostream>
 
 using namespace std;
 
