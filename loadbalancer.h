@@ -12,37 +12,37 @@
 /*                   DEPENDANCIES                   */
 /****************************************************/
 
+#include <iostream>
 #include <vector>
-#include "request_queue.h"
-#include "webserver.h"
+#include <queue>
+#include <cstdlib>
+#include <ctime>
 
+#include "request.h"
+#include "webserver.h"
 
 class loadbalancer
 {
-    public:
-        // individual server request info
-        int runtime;
-        int num_servers;
-        int initial_requests;
-        int clock;
-
-        // requests and webserver objects
-        request_queue requests;
+    private:
+        queue<request> request_queue;
         vector<webserver> webservers;
-        queue<webserver> free_webservers;
-        vector<request> handled_requests;
-        vector<webserver> handled_webservers;
-        vector<string> handled_times;
+        int current_time;
 
-        // constructor
-        loadbalancer(int rn_t, int num_serv, int init_req);
+    public:
+        // Constructor, seed random number generator
+        loadbalancer(const vector<webserver>& servers) : webservers(servers), current_time(0) { srand(static_cast<unsigned int>(std::time(nullptr))); }
 
-        vector<webserver> start_webservers();
-        request_queue add_requests();   // populate request_queue list
-        void initialize();
-        void run();
-        void assign_requests();
-        void server_sweeep();
+        // Add a request to the queue
+        void add_request_to_queue(const request& req);
+
+        // Route a request to an available server
+        void route_request_to_server();
+
+        // Update the status of web servers (text output)
+        void update_server_status();
+
+        // Simulate load balancing
+        void run(int simulation_duration);
 };
 
 #endif

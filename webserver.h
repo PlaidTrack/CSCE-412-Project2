@@ -1,25 +1,31 @@
 #ifndef WEBSERVER_H
 #define WEBSERVER_H
 
+#include <stdlib.h> // for using sleep()
+
 #include "request.h"
-#include "request_queue.h"
 
 /**
- * Server object:
+ * weberver object:
  *  Receives requests from loadbalancer
  *  Process requests
  *  Request another     
  */
 class webserver
 {
+    private:
+        int serverID;
+        bool isBusy;   
     public:
-        webserver(string name);
+        // constructor
+        webserver(int id) : serverID(id), isBusy(false) {};
 
-        void handle_request(request r, int timestamp);
-        
-        request current_request;
-        int current_wait;
-        string server_name;
+        // getters
+        int get_serverID() const { return serverID; }
+        int isAvailable() const { return !isBusy; }
+
+        // method to process request
+        void handle_request(const request& request);
 };
 
 #endif

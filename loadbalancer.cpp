@@ -1,111 +1,56 @@
 //loadbalancer.cpp
-#include <ostream>
-#include <iostream>
-#include <ctime>
 
 #include "loadbalancer.h"
 
-// constructor
-loadbalancer::loadbalancer(int rn_t, int num_serv, int init_req)
+void loadbalancer::add_request_to_queue(const request& req)
 {
-    runtime = rn_t;
-    num_servers = num_serv;
-    initial_requests = init_req;
+    request_queue.push(req);
+
+    cout << "Request from " << req.get_IP_in() << " to " << req.get_IP_out()
+         << " added to the queue." << endl;
 }
 
-vector<webserver> loadbalancer::start_webservers()
+void loadbalancer::route_request_to_server()
 {
-    vector<webserver> webserver_list;
-
-    cout << "Webservers created: ";
-
-    for (int i = 0; i < num_servers; i++)
+    if (!request_queue.empty())
     {
-        webserver new_webserver("S" + to_string(i));
-        cout << "S" << to_string(i);    // print server number
-        
-        // prevents lingering comma
-        if (i != num_servers - 1)
-            cout << ", ";
-    
-        webserver_list.push_back(new_webserver);
-        free_webservers.push(new_webserver);
-    }
-
-    cout << endl;
-    return webserver_list;
-}
-
-request_queue loadbalancer::add_requests()
-{
-    request_queue req;
-
-    for (int i = 0; i < initial_requests; i++)
-    {
-        request new_request;    // new request
-        cout << "New request from " << new_request.get_IP_in() << " to " << new_request.get_IP_out() << " over time " << new_request.get_process_time() << endl;
-        req.add_request(new_request);
-    }
-
-    cout << "Request queue has been populated with " << to_string(initial_requests) << " requests" << endl;
-    return req;
-}
-
-void loadbalancer::assign_requests()
-{
-    webserver current_webserver = free_webservers.front();
-    free_webservers.pop();
-
-    request current_request = requests.pop_request();
-
-    int current_timestamp = clock;
-    current_webserver.handle_request(current_request, current_timestamp);
-}
-
-void loadbalancer::server_sweeep()
-{
-    int request_time;   // request time
-    int request_dur;    // request duration
-
-    for(int i = 0; i < num_servers; i++)
-    {
-        webserver current_server = webservers[i];
-
-        request_time = current_server.current_request.get_process_time();
-        request_dur = clock - current_server.current_wait;
-
-        // webserver is done with request
-        if(request_dur >= request_time)
+        for (webserver& server : webservers)
         {
-            handled_requests.push_back(current_server.current_request);
-
-            string handled_time = to_string(request_dur);
-            handled_times.push_back(handled_time);
-
-            free_webservers.push(current_server);
+            if (server.isAvailable())
+            {
+                request req = request_queue.front();
+                request_queue.pop();
+                server.handle_request(req);
+                return; // exit after routing one request
+            }
         }
+    } else
+    {
+        cout << "No requests in the queue." << endl;
     }
 }
 
-void loadbalancer::initialize()
+void loadbalancer::update_server_status()
 {
-    webservers = start_webservers();    // start up webservers
-    requests = add_requests();          // fill up request queue
+    cout << "Server has been updated" << endl;
 }
 
-void loadbalancer::run()
+void loadbalancer::run(int simulation_duration)
 {
-    clock = 0;  // reset clock
-
-    // check if requests are empty
-    while (clock < runtime && !requests.is_empty())
+    while (current_time < simulation_duration)
     {
-        clock += 1;
+        // Add random requests to the queue for simulation (1/10 chance)
+        if (rand() % 10 == 0)
+        {
+            request random_request = request::generate_random_request();
+            add_request_to_queue(random_request);
+        }
 
-        if(!requests.is_empty() && free_webservers.empty())
-            server_sweeep();
-        
-        while(!free_webservers.empty() && !requests.is_empty())
-            assign_requests();
+    // Route requests to available servers
+    route_request_to_server();
+
+    current_time++;
+
+    update_server_status();
     }
 }
